@@ -85,6 +85,7 @@ export const addUnbox = async (
   isStatTrak: boolean,
 ) => {
   // Validate data
+  console.time("server: addUnbox");
   const zodReturn = z
     .object({ caseId: z.string(), itemId: z.string(), isStatTrak: z.boolean() })
     .safeParse({ caseId, itemId, isStatTrak });
@@ -97,7 +98,6 @@ export const addUnbox = async (
   const unboxerId = await getOrCreateUnboxerIdCookie();
 
   try {
-    console.time("insert unbox and get item");
     const insertedUnbox = await db.transaction(async tx => {
       const [insertedUnbox] = await tx
         .insert(unboxes)
@@ -118,8 +118,8 @@ export const addUnbox = async (
       });
       return item;
     });
-    console.timeEnd("insert unbox and get item");
 
+    console.timeEnd("server: addUnbox");
     return insertedUnbox;
   } catch (error) {
     console.error("Error adding item:", error);

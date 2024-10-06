@@ -97,6 +97,7 @@ export const addUnbox = async (
   const unboxerId = await getOrCreateUnboxerIdCookie();
 
   try {
+    console.time("insert unbox and get item");
     const insertedUnbox = await db.transaction(async tx => {
       const [insertedUnbox] = await tx
         .insert(unboxes)
@@ -117,6 +118,7 @@ export const addUnbox = async (
       });
       return item;
     });
+    console.timeEnd("insert unbox and get item");
 
     return insertedUnbox;
   } catch (error) {

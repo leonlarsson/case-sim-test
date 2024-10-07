@@ -74,7 +74,7 @@ export const getTotalUnboxesLast24Hours = async (): Promise<number> => {
       value: count(),
     })
     .from(unboxes)
-    .where(sql`unboxed_at >= NOW() - INTERVAL '24 hours'`);
+    .where(sql`unboxed_at >= datetime('now', '-24 hours')`);
 
   return query[0].value ?? 0;
 };
@@ -86,65 +86,41 @@ export const addUnbox = async (
   isStatTrak: boolean,
 ) => {
   // Validate data
-  console.time("server: addUnbox");
-  // const zodReturn = z
-  //   .object({ caseId: z.string(), itemId: z.string(), isStatTrak: z.boolean() })
-  //   .safeParse({ caseId, itemId, isStatTrak });
-  // if (!zodReturn.success) {
-  //   console.error("addItemToDB: Error validating data:", zodReturn.error);
-  //   return false;
-  // }
+  const zodReturn = z
+    .object({ caseId: z.string(), itemId: z.string(), isStatTrak: z.boolean() })
+    .safeParse({ caseId, itemId, isStatTrak });
+  if (!zodReturn.success) {
+    console.error("addItemToDB: Error validating data:", zodReturn.error);
+    return false;
+  }
 
   // Get unboxerId from cookies
-  // const unboxerId = await getOrCreateUnboxerIdCookie();
+  const unboxerId = await getOrCreateUnboxerIdCookie();
 
   try {
-    // const insertedUnbox = await db.transaction(async tx => {
-    //   const [insertedUnbox] = await tx
-    //     .insert(unboxes)
-    //     .values({
-    //       caseId,
-    //       itemId,
-    //       isStatTrak,
-    //       unboxerId,
-    //     })
-    //     .returning();
+    console.time("insert unbox and get item");
+    const insertedUnbox = await db.transaction(async tx => {
+      const [insertedUnbox] = await tx
+        .insert(unboxes)
+        .values({
+          caseId,
+          itemId,
+          isStatTrak,
+          unboxerId,
+        })
+        .returning();
 
-    //   const item = await tx.query.unboxes.findFirst({
-    //     where: eq(unboxes.id, insertedUnbox.id),
-    //     with: {
-    //       item: true,
-    //       case: true,
-    //     },
-    //   });
-    //   return item;
-    // });
+      const item = await tx.query.unboxes.findFirst({
+        where: eq(unboxes.id, insertedUnbox.id),
+        with: {
+          item: true,
+          case: true,
+        },
+      });
+      return item;
+    });
+    console.timeEnd("insert unbox and get item");
 
-    const insertedUnbox = {
-      id: 1,
-      caseId: "string",
-      itemId: "string",
-      isStatTrak: false,
-      unboxerId: "string",
-      unboxedAt: new Date(),
-      case: {
-        id: "string",
-        type: "string",
-        name: "string",
-        description: "string",
-        image: "string",
-      },
-      item: {
-        id: "string",
-        name: "string",
-        description: "string",
-        image: "string",
-        rarity: "string",
-        phase: "string",
-      },
-    } satisfies UnboxWithAllRelations;
-
-    console.timeEnd("server: addUnbox");
     return insertedUnbox;
   } catch (error) {
     console.error("Error adding item:", error);

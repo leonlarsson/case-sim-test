@@ -16,6 +16,7 @@ RUN npm ci
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+RUN mkdir -p ./sqlite
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -40,7 +41,7 @@ COPY drizzle.config.ts ./
 # Copy the DB scripts + schema
 COPY ./db ./db
 
-COPY ./sqlite ./sqlite
+COPY --from=builder ./sqlite ./sqlite
 
 ENV NODE_ENV=production
 # Opt out of runtime telemetry

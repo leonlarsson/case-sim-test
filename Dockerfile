@@ -45,6 +45,9 @@ COPY --from=builder /app/sqlite ./sqlite
 
 RUN mkdir -p ./sqlite
 
+# Change permissions on the sqlite directory and files
+RUN chown -R nextjs:nodejs ./sqlite
+
 ENV NODE_ENV=production
 # Opt out of runtime telemetry
 ENV NEXT_TELEMETRY_DISABLED=1

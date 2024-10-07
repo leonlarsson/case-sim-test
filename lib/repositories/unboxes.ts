@@ -87,16 +87,16 @@ export const addUnbox = async (
 ) => {
   // Validate data
   console.time("server: addUnbox");
-  const zodReturn = z
-    .object({ caseId: z.string(), itemId: z.string(), isStatTrak: z.boolean() })
-    .safeParse({ caseId, itemId, isStatTrak });
-  if (!zodReturn.success) {
-    console.error("addItemToDB: Error validating data:", zodReturn.error);
-    return false;
-  }
+  // const zodReturn = z
+  //   .object({ caseId: z.string(), itemId: z.string(), isStatTrak: z.boolean() })
+  //   .safeParse({ caseId, itemId, isStatTrak });
+  // if (!zodReturn.success) {
+  //   console.error("addItemToDB: Error validating data:", zodReturn.error);
+  //   return false;
+  // }
 
   // Get unboxerId from cookies
-  const unboxerId = await getOrCreateUnboxerIdCookie();
+  // const unboxerId = await getOrCreateUnboxerIdCookie();
 
   try {
     // const insertedUnbox = await db.transaction(async tx => {

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { items, unboxes } from "@/db/schema";
 import { and, count, desc, eq, inArray, max, sql } from "drizzle-orm";
 import { getOrCreateUnboxerIdCookie } from "./cookies";
+import { UnboxWithAllRelations } from "@/types";
 
 /** Gets an unbox with all relations by id. */
 export const findUnboxById = async (id: number) =>
@@ -98,26 +99,50 @@ export const addUnbox = async (
   const unboxerId = await getOrCreateUnboxerIdCookie();
 
   try {
-    const insertedUnbox = await db.transaction(async tx => {
-      const [insertedUnbox] = await tx
-        .insert(unboxes)
-        .values({
-          caseId,
-          itemId,
-          isStatTrak,
-          unboxerId,
-        })
-        .returning();
+    // const insertedUnbox = await db.transaction(async tx => {
+    //   const [insertedUnbox] = await tx
+    //     .insert(unboxes)
+    //     .values({
+    //       caseId,
+    //       itemId,
+    //       isStatTrak,
+    //       unboxerId,
+    //     })
+    //     .returning();
 
-      const item = await tx.query.unboxes.findFirst({
-        where: eq(unboxes.id, insertedUnbox.id),
-        with: {
-          item: true,
-          case: true,
-        },
-      });
-      return item;
-    });
+    //   const item = await tx.query.unboxes.findFirst({
+    //     where: eq(unboxes.id, insertedUnbox.id),
+    //     with: {
+    //       item: true,
+    //       case: true,
+    //     },
+    //   });
+    //   return item;
+    // });
+
+    const insertedUnbox = {
+      id: 1,
+      caseId: "string",
+      itemId: "string",
+      isStatTrak: false,
+      unboxerId: "string",
+      unboxedAt: new Date(),
+      case: {
+        id: "string",
+        type: "string",
+        name: "string",
+        description: "string",
+        image: "string",
+      },
+      item: {
+        id: "string",
+        name: "string",
+        description: "string",
+        image: "string",
+        rarity: "string",
+        phase: "string",
+      },
+    } satisfies UnboxWithAllRelations;
 
     console.timeEnd("server: addUnbox");
     return insertedUnbox;

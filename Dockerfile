@@ -40,6 +40,8 @@ COPY drizzle.config.ts ./
 # Copy the DB scripts + schema
 COPY ./db ./db
 
+COPY ./sqlite ./sqlite
+
 ENV NODE_ENV=production
 # Opt out of runtime telemetry
 ENV NEXT_TELEMETRY_DISABLED=1

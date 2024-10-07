@@ -16,7 +16,6 @@ RUN npm ci
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-RUN mkdir -p ./sqlite
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -33,7 +32,7 @@ FROM base AS runner
 WORKDIR /app
 
 # Install dependencies needed for DB scripts
-RUN npm install postgres@3.4.4 better-sqlite3@11.3.0 drizzle-orm@0.33.0 drizzle-kit@0.22.8 zod@3.23.8
+RUN npm install postgres@3.4.4 drizzle-orm@0.33.0 drizzle-kit@0.22.8 zod@3.23.8
 
 # Copy Drizzle config
 COPY drizzle.config.ts ./ 
@@ -41,19 +40,12 @@ COPY drizzle.config.ts ./
 # Copy the DB scripts + schema
 COPY ./db ./db
 
-COPY --from=builder /app/sqlite ./sqlite
-
-RUN mkdir -p ./sqlite
-
 ENV NODE_ENV=production
 # Opt out of runtime telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-
-# Change permissions on the sqlite directory and files
-RUN chown -R nextjs:nodejs ./sqlite
 
 COPY --from=builder /app/public ./public
 
